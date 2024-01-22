@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { UserButton } from "@clerk/nextjs";
 
 export default function Home() {
   const [selectedFileName, setSelectedFileName] = useState("");
@@ -47,7 +46,6 @@ export default function Home() {
 
   return (
     <main className="flex flex-col px-24 bg-gray-50 dark:bg-gray-800 h-screen">
-      <UserButton afterSignOutUrl="/" />
       <form
         className="self-center grid place-items-center w-[80%] h-full"
         onSubmit={e => {
