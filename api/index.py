@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from google.cloud import speech, storage
 from google.oauth2 import service_account
 from pydub import AudioSegment
-from google.api_core.exceptions import GoogleAPICallError
+
 
 app = FastAPI(
     title="ICC Transcription API",
@@ -44,9 +44,15 @@ bucket_name = 'icc-transcription-bucket'
 bucket = storage.Bucket(storage_client, 'icc-transcription-bucket')
 
 
+@app.get("/api/trial")
+async def hello():
+    print("hello")
+
+
 @app.post("/api/transcribe")
 async def transcribe_file(file: UploadFile = File(...)):
     try:
+
         # Uploading the file to Google Cloud Storage
         blob = bucket.blob(file.filename)
         blob.upload_from_file(file.file, content_type=file.content_type)
@@ -56,7 +62,7 @@ async def transcribe_file(file: UploadFile = File(...)):
 
         # Downloading the audio content from GCS
         mp3_blob = bucket.blob(file.filename)
-        audio_content = mp3_blob.download_as_bytes()
+        audio_content = mp3_blob.download_as_bytes(timeout=12000)
 
         # Creating the AudioSegment and getting sample rate
         audio = AudioSegment.from_file(BytesIO(audio_content), format="mp3")
@@ -73,7 +79,8 @@ async def transcribe_file(file: UploadFile = File(...)):
         audio = speech.RecognitionAudio(uri=gcs_path)
 
         # Initiating a long-running transcription
-        operation = client.long_running_recognize(config=config, audio=audio)
+        operation = client.long_running_recognize(
+            config=config, audio=audio, timeout=7200)
 
         print("Waiting for operation to complete...")
         response = operation.result()
@@ -82,19 +89,12 @@ async def transcribe_file(file: UploadFile = File(...)):
         transcript_builder = []
         for result in response.results:
             transcript_builder.append(
-                f"\nTranscript: {result.alternatives[0].transcript}")
+                f"{result.alternatives[0].transcript}")
 
         transcript = "".join(transcript_builder)
         print(transcript)
 
-        return {"transcript": transcript_builder}
-
-    except GoogleAPICallError as storage_error:
-        # Handling specific Google Cloud Storage API errors
-        print(f"Storage API Error: {str(storage_error)}")
-        raise HTTPException(
-            status_code=500, detail="An error occurred during file upload."
-        )
+        return {"transcript": transcript}
 
     except Exception as e:
         print(f"Error: {str(e)}")

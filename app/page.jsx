@@ -29,7 +29,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append("file", selectedFileName);
 
-      const response = await fetch("http://localhost:3000/api/transcribe", {
+      const response = await fetch("http://localhost:8000/api/transcribe", {
         method: "POST",
         body: formData,
       });
@@ -88,7 +88,7 @@ export default function Home() {
                 />
               </label>
               {selectedFileName && (
-                <span className="text-gray-500 mt-1">
+                <span className="text-gray-500 mt-1 w-full">
                   {selectedFileName.name}
                 </span>
               )}
