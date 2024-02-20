@@ -88,13 +88,12 @@ async def transcribe_file(file: UploadFile = File(...)):
         # Building transcript
         transcript_builder = []
         for result in response.results:
-            transcript_builder.append(
-                f"{result.alternatives[0].transcript}")
+            transcript_builder.append(f"{result.alternatives[0].transcript}")
 
         transcript = "".join(transcript_builder)
         print(transcript)
 
-        return {"transcript": transcript}
+        return {"transcript": transcript_builder}
 
     except Exception as e:
         print(f"Error: {str(e)}")
