@@ -45,7 +45,7 @@ bucket = storage.Bucket(storage_client, 'icc-transcription-bucket')
 
 
 @app.get("/api/trial")
-async def hello():
+def hello():
     print("hello")
 
 
