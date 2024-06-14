@@ -2,9 +2,8 @@ from io import BytesIO
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from google.cloud import speech, storage
-from google.oauth2 import service_account
+from google.oauth2.service_account import Credentials
 from pydub import AudioSegment
-
 
 app = FastAPI(
     title="ICC Transcription API",
@@ -35,7 +34,7 @@ credentials_details = {
     "universe_domain": "googleapis.com"
 }
 
-credentials = service_account.Credentials.from_service_account_info(
+credentials = Credentials.from_service_account_info(
     credentials_details)
 client = speech.SpeechClient(credentials=credentials)
 
